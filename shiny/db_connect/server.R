@@ -1,4 +1,4 @@
-# setwd("D:/Учёба/МАГА/Германия/GeoDB/project")
+# setwd("D:/Учёба/МАГА/Германия/GeoDB/geodb")
 library(shiny)
 library(DBI)
 library(RPostgreSQL)
