@@ -1,6 +1,5 @@
 request_1 <- "select
   id_crime as id,
-  region,
   age_group as age,
   cr_type as type,
   time,
