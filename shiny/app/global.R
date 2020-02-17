@@ -20,14 +20,8 @@ request_2 <- c(
   st_y(geom) as lat
 from
   ny_crimes
-order by geom <-> st_makepoint(",
-"______", # 2
-", ",
-"______", # 4
-")
-limit ",
-"______" # 6
-)
+order by geom <-> st_makepoint(","______",", ","______",")
+limit ","______")
 
 r3_coord <- data.frame(numeric(), numeric())
 r3_cooord <- data.frame(numeric(), numeric())
@@ -55,12 +49,8 @@ from
   ny_crimes 
 where st_intersects(
   ny_crimes.geom, 
-  st_multi(",
-    "_______", # 2   st_convexhull or st_makepolygon
-    "(
-      'LINESTRING(",
-      "_______", # 4   1 10, 2 20, 3 30
-      ")'::geometry
+  st_multi(","_______","(
+      'LINESTRING(","_______",")'::geometry
     )
   )
 )")
@@ -76,27 +66,21 @@ WHERE
     data_type = 'character varying'"
 
 request_4_2 <- c("select distinct
-  tab.",
-  "_______", # 2 
-  " as levels
+  tab.","_______"," as levels
 from (select * from ny_crimes
   join ny_parts on st_intersects(ny_crimes.geom, ny_parts.geom)) tab")
 
 request_4_3 <- c("select 
-	id_crime as id,
-	age_group as age,
-	cr_type as type,
-	time,
-	date,
-	ny_parts.region as region,
-	st_x(ny_crimes.geom) as lng, 
-	st_y(ny_crimes.geom) as lat
+  id_crime as id,
+  age_group as age,
+  cr_type as type,
+  time,
+  date,
+  ny_parts.region as region,
+  st_x(ny_crimes.geom) as lng, 
+  st_y(ny_crimes.geom) as lat
 from 
-	ny_crimes 
+  ny_crimes 
 join ny_parts on st_intersects(ny_crimes.geom, ny_parts.geom) 
-where ",
-"_____", # 2
-" like '",
-"_____", # 4
-"%' ")
+where ","_____"," like '","_____","%' ")
 

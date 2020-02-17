@@ -13,8 +13,9 @@ shinyUI(
           inputId = "r1_req",
           label = "Request", 
           value = request_1,
-          # placeholder = "write your request here", 
-          rows = 15
+          placeholder = "write your request here",
+          rows = 15,
+          resize = "both"
         ),
         selectInput(
           inputId = "r1_choice",

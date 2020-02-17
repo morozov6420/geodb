@@ -33,31 +33,19 @@ shinyServer(function(session, input, output) {
     if (input$r1_submit == 0)
       return()
     isolate({
-      # tryCatch(
-      #   {
-      #     con %>% 
-      #       postgresqlExecStatement(input$r1_req) %>% 
-      #       postgresqlFetch(res)
-      #     work <<- T
-      #   },
-      #   error = function(e){
-      #     work <<- F
-      #     print("caught")
-      #   }
-      # )
-      # if (work){
       ifelse(
-        str_starts(tolower(input$r1_req), pattern = "select"),
+        grepl("^select", tolower(input$r1_req)),
         {
           con <- do.call(DBI::dbConnect, args)
           on.exit(dbDisconnect(con))
           dat <- dbGetQuery(con, input$r1_req)
         },
         ifelse(
-          str_detect(tolower(input$r1_req), pattern = "drop"),
-          dat <- data.frame(message = "Don't use DROP"),
+          grepl("drop", tolower(input$r1_req)) | 
+            grepl("alter table", tolower(input$r1_req)),
+          dat <- data.frame(message = "Don't do it"),
           ifelse(
-            str_detect(tolower(input$r1_req), pattern = "insert"),
+            grepl("insert", tolower(input$r1_req)),
             {
               con <- do.call(DBI::dbConnect, args)
               on.exit(dbDisconnect(con))
@@ -68,36 +56,20 @@ shinyServer(function(session, input, output) {
         )
       )
       dat
-      # } else {
-      #   data.frame(message = "Something wrong")
-      # }
     })
   })
   output$r1_request <- renderPrint({
     if (input$r1_submit == 0)
       return()
     isolate({
-      cat(input$r1_req)
+      cat(input$r1_req, sep = "")
     })
   })
   observeEvent(input$r1_submit, {
-    # tryCatch(
-    #   {
-    #     con %>% 
-    #       postgresqlExecStatement(input$r1_req) %>% 
-    #       postgresqlFetch(res)
-    #     work <<- T
-    #   },
-    #   error = function(e){
-    #     work <- F
-    #     print("caught")
-    #   }
-    # )
-    # if (work){
-    ifelse( 
-      str_starts(tolower(input$r1_req), pattern = "select") & 
-        str_detect(tolower(input$r1_req), pattern = "lat") & 
-        str_detect(tolower(input$r1_req), pattern = "lng"),
+    ifelse(
+      grepl("^select", tolower(input$r1_req)) &&
+        grepl("lat", tolower(input$r1_req)) &&
+        grepl("lng", tolower(input$r1_req)),
       {
         con <- do.call(DBI::dbConnect, args)
         on.exit(dbDisconnect(con))
@@ -122,7 +94,8 @@ shinyServer(function(session, input, output) {
           )
       },
       ifelse(
-        str_detect(tolower(input$r1_req), pattern = "drop"),
+        grepl("drop", tolower(input$r1_req)) ||
+          grepl("alter table", tolower(input$r1_req)),
         return(),
         {
           con <- do.call(DBI::dbConnect, args)
@@ -131,9 +104,6 @@ shinyServer(function(session, input, output) {
         }
       )
     )
-    # } else {
-    #   return()
-    # }
   })
   observeEvent(input$r1_clean, {
     leafletProxy('r1_map') %>% 
@@ -150,14 +120,14 @@ shinyServer(function(session, input, output) {
       clearShapes()
   })
   output$r2_table <- renderTable({
-    if (input$r2_submit == 0 & 
+    if (input$r2_submit == 0 || 
           (suppressWarnings(
             is.na(
               as.numeric(
                 input$r2_lng
               )
             )
-          ) | 
+          ) ||
             suppressWarnings(
               is.na(
                 as.numeric(
@@ -178,14 +148,29 @@ shinyServer(function(session, input, output) {
     })
   })
   output$r2_request <- renderPrint({
-    if (input$r2_submit == 0)
+    if (input$r2_submit == 0 ||
+        (suppressWarnings(
+          is.na(
+            as.numeric(
+              input$r2_lng
+            )
+          )
+        ) ||
+        suppressWarnings(
+          is.na(
+            as.numeric(
+              input$r2_lat
+            )
+          )
+        ))
+    )
       return()
     isolate({
       request_2[2] <- input$r2_lng
       request_2[4] <- input$r2_lat
       request_2[6] <- input$r2_nn
-      req_2 <- paste0(request_2, collapse = "")
-      cat(req_2)
+      # req_2 <- paste0(request_2, collapse = "")
+      cat(request_2, sep = "")
     })
   })
   observeEvent(input$r2_map_click, {
@@ -222,7 +207,7 @@ shinyServer(function(session, input, output) {
           input$r2_lng
         )
       )
-    ) | 
+    ) || 
     suppressWarnings(
       is.na(
         as.numeric(
@@ -302,9 +287,9 @@ shinyServer(function(session, input, output) {
     if (input$r3_submit == 0)
       return()
     isolate({
-      cat(request_3_1)
+      cat(request_3_1, sep = "")
       cat("\n")
-      cat(request_3_2)
+      cat(request_3_2, sep = "")
     })
   })
   observeEvent(input$r3_map_click, {
@@ -492,11 +477,11 @@ shinyServer(function(session, input, output) {
       request_4_2[2] <- input$r4_par
       request_4_3[2] <- input$r4_par
       request_4_3[4] <- input$r4_param_level
-      cat(request_4_1)
+      cat(request_4_1, sep = "")
       cat("\n")
-      cat(request_4_2)
+      cat(request_4_2, sep = "")
       cat("\n")
-      cat(request_4_3)
+      cat(request_4_3, sep = "")
     })
   })
   output$r4_param <- renderUI({
