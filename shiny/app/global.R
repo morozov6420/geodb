@@ -65,3 +65,39 @@ where st_intersects(
     )
   )
 )")
+
+
+request_4_1 <- "select
+  column_name as params, 
+  data_type as type
+FROM information_schema.columns
+WHERE 
+  (table_name = 'ny_crimes' or 
+    table_name = 'ny_parts') AND
+    data_type = 'character varying'"
+
+request_4_2 <- c("select distinct
+  tab.",
+  "_______", # 2 
+  " as levels
+from (select * from ny_crimes
+  join ny_parts on st_intersects(ny_crimes.geom, ny_parts.geom)) tab")
+
+request_4_3 <- c("select 
+	id_crime as id,
+	age_group as age,
+	cr_type as type,
+	time,
+	date,
+	ny_parts.region as region,
+	st_x(ny_crimes.geom) as lng, 
+	st_y(ny_crimes.geom) as lat
+from 
+	ny_crimes 
+join ny_parts on st_intersects(ny_crimes.geom, ny_parts.geom) 
+where ",
+"_____", # 2
+" like '",
+"_____", # 4
+"%' ")
+

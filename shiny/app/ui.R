@@ -121,6 +121,43 @@ shinyUI(
           background-color: #9ea8b0; 
           border-color: #7c8287"
         )
+      ),
+      conditionalPanel(
+        condition = "input.tabselected == 4",
+        uiOutput(
+          outputId = "r4_param"
+        ),
+        selectInput(
+          inputId = "r4_param_level",
+          label = "Choose a level",
+          choices = ""
+        ),
+        selectInput(
+          inputId = "r4_choice",
+          label = "Choose an option",
+          choices = c(
+            "map" = 2,
+            "table" = 1,
+            "request" = 3
+          ), 
+          selected = 2
+        ),
+        actionButton(
+          inputId = "r4_submit",
+          label = "Submit",
+          icon = icon("share-square"),
+          style = "color: #fff; 
+          background-color: #337ab7; 
+          border-color: #2e6da4"
+        ),
+        actionButton(
+          inputId = "r4_clean",
+          label = "Clean",
+          icon = icon("broom"),
+          style = "color: #fff; 
+          background-color: #9ea8b0; 
+          border-color: #7c8287"
+        )
       )
     ),
     mainPanel(
@@ -171,6 +208,22 @@ shinyUI(
           conditionalPanel(
             condition = "input.r3_choice == 3",
             verbatimTextOutput("r3_request")
+          )
+        ),
+        tabPanel(
+          title = "req4",
+          value = 4,
+          conditionalPanel(
+            condition = "input.r4_choice == 2",
+            leafletOutput("r4_map", height = "500px")
+          ),
+          conditionalPanel(
+            condition = "input.r4_choice == 1",
+            tableOutput("r4_table")
+          ),
+          conditionalPanel(
+            condition = "input.r4_choice == 3",
+            verbatimTextOutput("r4_request")
           )
         ),
         id = "tabselected"

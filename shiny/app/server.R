@@ -33,9 +33,44 @@ shinyServer(function(session, input, output) {
     if (input$r1_submit == 0)
       return()
     isolate({
-      con <- do.call(DBI::dbConnect, args)
-      on.exit(dbDisconnect(con))
-      dbGetQuery(con, input$r1_req)
+      # tryCatch(
+      #   {
+      #     con %>% 
+      #       postgresqlExecStatement(input$r1_req) %>% 
+      #       postgresqlFetch(res)
+      #     work <<- T
+      #   },
+      #   error = function(e){
+      #     work <<- F
+      #     print("caught")
+      #   }
+      # )
+      # if (work){
+      ifelse(
+        str_starts(tolower(input$r1_req), pattern = "select"),
+        {
+          con <- do.call(DBI::dbConnect, args)
+          on.exit(dbDisconnect(con))
+          dat <- dbGetQuery(con, input$r1_req)
+        },
+        ifelse(
+          str_detect(tolower(input$r1_req), pattern = "drop"),
+          dat <- data.frame(message = "Don't use DROP"),
+          ifelse(
+            str_detect(tolower(input$r1_req), pattern = "insert"),
+            {
+              con <- do.call(DBI::dbConnect, args)
+              on.exit(dbDisconnect(con))
+              dat <- dbExecute(con, input$r1_req)
+            },
+            dat <- data.frame(message = "Use SELECT or INSERT")
+          )
+        )
+      )
+      dat
+      # } else {
+      #   data.frame(message = "Something wrong")
+      # }
     })
   })
   output$r1_request <- renderPrint({
@@ -46,26 +81,59 @@ shinyServer(function(session, input, output) {
     })
   })
   observeEvent(input$r1_submit, {
-    con <- do.call(DBI::dbConnect, args)
-    on.exit(dbDisconnect(con))
-    dat <- dbGetQuery(con, input$r1_req)
-    leafletProxy('r1_map', data = dat) %>% 
-      addCircles(
-        group = "crimes",
-        lat = ~ lat,
-        lng = ~ lng,
-        weight = 1,
-        color = 'black',
-        fillColor = 'orange',
-        fillOpacity = 0.5,
-        opacity = 1,
-        radius = 100,
-        popup = ~ paste(
-          "Age: ", age, "<br>",
-          "Type: ", type, "<br>",
-          "Date: ", date
-        )
+    # tryCatch(
+    #   {
+    #     con %>% 
+    #       postgresqlExecStatement(input$r1_req) %>% 
+    #       postgresqlFetch(res)
+    #     work <<- T
+    #   },
+    #   error = function(e){
+    #     work <- F
+    #     print("caught")
+    #   }
+    # )
+    # if (work){
+    ifelse( 
+      str_starts(tolower(input$r1_req), pattern = "select") & 
+        str_detect(tolower(input$r1_req), pattern = "lat") & 
+        str_detect(tolower(input$r1_req), pattern = "lng"),
+      {
+        con <- do.call(DBI::dbConnect, args)
+        on.exit(dbDisconnect(con))
+        dat <- dbGetQuery(con, input$r1_req)
+        leafletProxy('r1_map', data = dat) %>% 
+          clearGroup("crimes") %>% 
+          addCircles(
+            group = "crimes",
+            lat = ~ lat,
+            lng = ~ lng,
+            weight = 1,
+            color = 'black',
+            fillColor = 'orange',
+            fillOpacity = 0.5,
+            opacity = 1,
+            radius = 100,
+            popup = ~ paste(
+              "Age: ", age, "<br>",
+              "Type: ", type, "<br>",
+              "Date: ", date
+            )
+          )
+      },
+      ifelse(
+        str_detect(tolower(input$r1_req), pattern = "drop"),
+        return(),
+        {
+          con <- do.call(DBI::dbConnect, args)
+          on.exit(dbDisconnect(con))
+          dbExecute(con, input$r1_req)
+        }
       )
+    )
+    # } else {
+    #   return()
+    # }
   })
   observeEvent(input$r1_clean, {
     leafletProxy('r1_map') %>% 
@@ -82,7 +150,22 @@ shinyServer(function(session, input, output) {
       clearShapes()
   })
   output$r2_table <- renderTable({
-    if (input$r2_submit == 0)
+    if (input$r2_submit == 0 & 
+          (suppressWarnings(
+            is.na(
+              as.numeric(
+                input$r2_lng
+              )
+            )
+          ) | 
+            suppressWarnings(
+              is.na(
+                as.numeric(
+                  input$r2_lat
+                )
+              )
+            ))
+      )
       return()
     isolate({
       request_2[2] <- input$r2_lng
@@ -115,7 +198,7 @@ shinyServer(function(session, input, output) {
         group = 'circles',
         lng = clng,
         lat = clat,
-        icon = awesomeIcons(markerColor = "green"),
+        icon = awesomeIcons(markerColor = "red"),
         popup = paste0("lat: ", round(clat, 4), "<br>",
                        "lng: ", round(clng, 4))
       )
@@ -133,44 +216,61 @@ shinyServer(function(session, input, output) {
     )
   })
   observeEvent(input$r2_submit, {
-    con <- do.call(DBI::dbConnect, args)
-    on.exit(dbDisconnect(con))
-    request_2[2] <- input$r2_lng
-    request_2[4] <- input$r2_lat
-    request_2[6] <- input$r2_nn
-    req_2 <- paste0(request_2, collapse = "")
-    dat <- dbGetQuery(con, req_2)
-    leafletProxy('r2_map', data = dat) %>% 
-      clearGroup(group = "crimes") %>%
-      clearGroup(group = "circles") %>% 
-      addCircles(
-        group = "crimes",
-        lat = ~ lat,
-        lng = ~ lng,
-        weight = 1,
-        color = 'black',
-        fillColor = 'orange',
-        fillOpacity = 0.5,
-        opacity = 1,
-        radius = 100,
-        popup = ~ paste(
-          "Age: ", age, "<br>",
-          "Type: ", type, "<br>",
-          "Date: ", date, "<br>",
-          "Time :", time, "<br>",
-          "lng: ", lng, "<br>",
-          "lat: ", lat
-        )
-      ) %>% 
-      addMarkers(
-        group = "crimes",
-        lng = as.numeric(input$r2_lng),
-        lat = as.numeric(input$r2_lat),
-        popup = paste0(
-          "lat: ", round(as.numeric(input$r2_lng), 4), "<br>",
-          "lng: ", round(as.numeric(input$r2_lat), 4)
+    if (suppressWarnings(
+      is.na(
+        as.numeric(
+          input$r2_lng
         )
       )
+    ) | 
+    suppressWarnings(
+      is.na(
+        as.numeric(
+          input$r2_lat
+        )
+      )
+    )) {
+      return()
+    } else {
+      con <- do.call(DBI::dbConnect, args)
+      on.exit(dbDisconnect(con))
+      request_2[2] <- input$r2_lng
+      request_2[4] <- input$r2_lat
+      request_2[6] <- input$r2_nn
+      req_2 <- paste0(request_2, collapse = "")
+      dat <- dbGetQuery(con, req_2)
+      leafletProxy('r2_map', data = dat) %>% 
+        clearGroup(group = "crimes") %>%
+        clearGroup(group = "circles") %>% 
+        addCircles(
+          group = "crimes",
+          lat = ~ lat,
+          lng = ~ lng,
+          weight = 1,
+          color = 'black',
+          fillColor = 'orange',
+          fillOpacity = 0.5,
+          opacity = 1,
+          radius = 100,
+          popup = ~ paste(
+            "Age: ", age, "<br>",
+            "Type: ", type, "<br>",
+            "Date: ", date, "<br>",
+            "Time :", time, "<br>",
+            "lng: ", lng, "<br>",
+            "lat: ", lat
+          )
+        ) %>% 
+        addMarkers(
+          group = "crimes",
+          lng = as.numeric(input$r2_lng),
+          lat = as.numeric(input$r2_lat),
+          popup = paste0(
+            "lat: ", round(as.numeric(input$r2_lng), 4), "<br>",
+            "lng: ", round(as.numeric(input$r2_lat), 4)
+          )
+        )
+    }
   })
   observeEvent(input$r2_clean, {
     leafletProxy('r2_map') %>% 
@@ -247,6 +347,7 @@ shinyServer(function(session, input, output) {
       clearGroup("poly") %>%
       clearGroup("circles") %>%
       clearGroup("crimes") %>%
+      clearGroup("line") %>% 
       addPolygons(
         group = "poly",
         lat = r3_cooord$lat,
@@ -257,9 +358,15 @@ shinyServer(function(session, input, output) {
         group = 'circles',
         lng = clng,
         lat = clat,
-        icon = awesomeIcons(markerColor = "green"),
+        icon = awesomeIcons(markerColor = "red"),
         popup = paste0("lat: ", round(clat, 4), "<br>",
                        "lng: ", round(clng, 4))
+      ) %>% 
+      addPolylines(
+        group = "line",
+        lng = r3_coord_copy[-nrow(r3_coord_copy),1],
+        lat = r3_coord_copy[-nrow(r3_coord_copy),2],
+        color = "red"
       )
   })
   observeEvent(input$r3_submit, {
@@ -300,35 +407,42 @@ shinyServer(function(session, input, output) {
         lng = as.numeric(as.character(lng))
       )
     
-    leafletProxy("r3_map", data = dat_2) %>% 
-      clearGroup("poly") %>%
-      clearGroup("circles") %>%
-      clearGroup("crimes") %>%
-      addPolygons(
-        group = "crimes",
-        lat = r3_cooord$lat,
-        lng = r3_cooord$lng,
-        color = "#03F"
-      ) %>% 
-      addCircles(
-        group = "crimes",
-        lat = ~ lat,
-        lng = ~ lng,
-        weight = 1,
-        color = 'black',
-        fillColor = 'orange',
-        fillOpacity = 0.5,
-        opacity = 1,
-        radius = 100,
-      popup = ~ paste(
-        "Age: ", age, "<br>",
-        "Type: ", type, "<br>",
-        "Date: ", date, "<br>",
-        "Time :", time, "<br>",
-        "lng: ", lng, "<br>",
-        "lat: ", lat
-      )
-      )
+    if (nrow(dat_2) > 0){
+      leafletProxy("r3_map", data = dat_2) %>%
+        clearGroup("poly") %>%
+        clearGroup("crimes") %>%
+        addPolygons(
+          group = "crimes",
+          lat = r3_cooord$lat,
+          lng = r3_cooord$lng,
+          color = "#03F"
+        ) %>% 
+        addPolylines(
+          group = "line",
+          lng = r3_coord_copy[-nrow(r3_coord_copy),1],
+          lat = r3_coord_copy[-nrow(r3_coord_copy),2],
+          color = "red"
+        ) %>% 
+        addCircles(
+          group = "crimes",
+          lat = ~ lat,
+          lng = ~ lng,
+          weight = 1,
+          color = 'black',
+          fillColor = 'orange',
+          fillOpacity = 0.5,
+          opacity = 1,
+          radius = 100,
+          popup = ~ paste(
+            "Age: ", age, "<br>",
+            "Type: ", type, "<br>",
+            "Date: ", date, "<br>",
+            "Time :", time, "<br>",
+            "lng: ", lng, "<br>",
+            "lat: ", lat
+          )
+        )
+    }
   })
   observeEvent(input$r3_clean, {
     r3_coord <<- data.frame(numeric(), numeric())
@@ -342,6 +456,104 @@ shinyServer(function(session, input, output) {
       ) %>% 
       clearGroup(
         group = "poly"
+      ) %>% 
+      clearGroup(
+        group = "line"
       )
   })
+  
+  params <- reactive({
+    con <- do.call(DBI::dbConnect, args)
+    on.exit(dbDisconnect(con))
+    dbGetQuery(con, request_4_1)
+  })
+  output$r4_map <- renderLeaflet({
+    leaflet() %>% 
+      addTiles() %>% 
+      setView(lat = 40.7, lng = -73.9, zoom = 10) %>% 
+      clearShapes()
+  })
+  output$r4_table <- renderTable({
+    if (input$r4_submit == 0)
+      return()
+    isolate({
+      request_4_3[2] <- input$r4_par
+      request_4_3[4] <- input$r4_param_level
+      request_4__3 <- paste0(request_4_3, collapse = "")
+      con <- do.call(DBI::dbConnect, args)
+      on.exit(dbDisconnect(con))
+      dbGetQuery(con, request_4__3)
+    })
+  })
+  output$r4_request <- renderPrint({
+    if (input$r4_submit == 0)
+      return()
+    isolate({
+      request_4_2[2] <- input$r4_par
+      request_4_3[2] <- input$r4_par
+      request_4_3[4] <- input$r4_param_level
+      cat(request_4_1)
+      cat("\n")
+      cat(request_4_2)
+      cat("\n")
+      cat(request_4_3)
+    })
+  })
+  output$r4_param <- renderUI({
+    selectInput(
+      inputId = "r4_par",
+      label = "Choose a param", 
+      choices = params()$params
+    )
+  })
+  observeEvent(input$r4_par, {
+    request_4_2[2] <- input$r4_par
+    request_4__2 <- paste0(request_4_2, collapse = "")
+    con <- do.call(DBI::dbConnect, args)
+    on.exit(dbDisconnect(con))
+    dat <- dbGetQuery(con, request_4__2)
+    updateSelectInput(
+      session = session,
+      inputId = "r4_param_level",
+      label = "Choose a level",
+      choices = dat$levels
+    )
+  })
+  observeEvent(input$r4_submit, {
+    request_4_3[2] <- input$r4_par
+    request_4_3[4] <- input$r4_param_level
+    request_4__3 <- paste0(request_4_3, collapse = "")
+    con <- do.call(DBI::dbConnect, args)
+    on.exit(dbDisconnect(con))
+    dat <- dbGetQuery(con, request_4__3)
+    leafletProxy("r4_map", data = dat) %>%
+      clearGroup("crimes") %>% 
+      addCircles(
+        group = "crimes",
+        lat = ~ lat,
+        lng = ~ lng,
+        weight = 1,
+        color = 'black',
+        fillColor = 'orange',
+        fillOpacity = 0.5,
+        opacity = 1,
+        radius = 100,
+        popup = ~ paste(
+          "Age: ", age, "<br>",
+          "Type: ", type, "<br>",
+          "Date: ", date, "<br>",
+          "Time :", time, "<br>",
+          "Region :", region, "<br>",
+          "lng: ", lng, "<br>",
+          "lat: ", lat
+        )
+      )
+  })
+  observeEvent(input$r4_clean, {
+    leafletProxy('r4_map') %>% 
+      clearGroup(
+        group = "crimes"
+      )
+  })
+  
 })
