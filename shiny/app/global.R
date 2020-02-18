@@ -1,3 +1,4 @@
+rm(list = ls())
 request_1 <- "select
   id_crime as id,
   age_group as age,
@@ -28,11 +29,11 @@ r3_cooord <- data.frame(numeric(), numeric())
 
 request_3_1 <- c("select st_astext(
   st_multi(",
-    "_______", # 2   st_convexhull or st_makepolygon
-    "(
+                 "_______", # 2   st_convexhull or st_makepolygon
+                 "(
       'LINESTRING(",
-      "_______", # 4   1 10, 2 20, 3 30
-      ")'::geometry
+                 "_______", # 4   1 10, 2 20, 3 30
+                 ")'::geometry
     )
   )
 ) as text")

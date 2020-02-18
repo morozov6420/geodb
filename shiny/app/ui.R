@@ -1,234 +1,228 @@
 library(shiny)
 library(leaflet)
+library(DBI)
+library(RPostgreSQL)
+library(dplyr)
+library(leafem)
+library(stringr)
+library(DT)
 
 shinyUI(
-  pageWithSidebar(
-    headerPanel(
-      "app with leaflet"
-    ),
-    sidebarPanel(
-      conditionalPanel(
-        condition = "input.tabselected == 1",
-        textAreaInput(
-          inputId = "r1_req",
-          label = "Request", 
-          value = request_1,
-          placeholder = "write your request here",
-          rows = 15,
-          resize = "both"
-        ),
-        selectInput(
-          inputId = "r1_choice",
-          label = "Choose an option",
-          choices = c(
-            "map" = 2,
-            "table" = 1,
-            "request" = 3
-          ), 
-          selected = 2
-        ),
-        actionButton(
-          inputId = "r1_submit",
-          label = "Submit",
-          icon = icon("share-square"),
-          style = "color: #fff; 
-          background-color: #337ab7; 
+  navbarPage(
+    title = "Layout v2",
+    tabPanel(
+      "req1",
+      value = "r1",
+      sidebarLayout(
+        sidebarPanel(
+          textAreaInput(
+            inputId = "r1_req",
+            label = "Request",
+            value = request_1,
+            placeholder = "write your request here",
+            rows = 15,
+            resize = "both"
+          ),
+          actionButton(
+            inputId = "r1_submit",
+            label = "Submit",
+            icon = icon("share-square"),
+            style = "color: #fff;
+          background-color: #337ab7;
           border-color: #2e6da4"
-        ),
-        actionButton(
-          inputId = "r1_clean",
-          label = "Clean",
-          icon = icon("broom"),
-          style = "color: #fff; 
-          background-color: #9ea8b0; 
+          ),
+          actionButton(
+            inputId = "r1_clean",
+            label = "Clean",
+            icon = icon("broom"),
+            style = "color: #fff;
+          background-color: #9ea8b0;
           border-color: #7c8287"
-        )
-      ),
-      conditionalPanel(
-        condition = "input.tabselected == 2",
-        textInput(
-          inputId = "r2_lat",
-          label = "Latitude",
-          value = "40.7"
+          )
         ),
-        textInput(
-          inputId = "r2_lng",
-          label = "Longitude",
-          value = "-73.9"
-        ),
-        numericInput(
-          inputId = "r2_nn",
-          label = "k-nearest neighbors", 
-          value = 10, 
-          min = 1
-        ),
-        selectInput(
-          inputId = "r2_choice",
-          label = "Choose an option",
-          choices = c(
-            "map" = 2,
-            "table" = 1,
-            "request" = 3
-          ), 
-          selected = 2
-        ),
-        actionButton(
-          inputId = "r2_submit",
-          label = "Submit",
-          icon = icon("share-square"),
-          style = "color: #fff; 
-          background-color: #337ab7; 
-          border-color: #2e6da4"
-        ),
-        actionButton(
-          inputId = "r2_clean",
-          label = "Clean",
-          icon = icon("broom"),
-          style = "color: #fff; 
-          background-color: #9ea8b0; 
-          border-color: #7c8287"
-        )
-      ),
-      conditionalPanel(
-        condition = "input.tabselected == 3",
-        selectInput(
-          inputId = "r3_choice",
-          label = "Choose an option",
-          choices = c(
-            "map" = 2,
-            "table" = 1,
-            "request" = 3
-          ), 
-          selected = 2
-        ),
-        checkboxInput(
-          inputId = "r3_check",
-          label = "Convex Hull", 
-          value = F
-        ),
-        actionButton(
-          inputId = "r3_submit",
-          label = "Submit",
-          icon = icon("share-square"),
-          style = "color: #fff; 
-          background-color: #337ab7; 
-          border-color: #2e6da4"
-        ),
-        actionButton(
-          inputId = "r3_clean",
-          label = "Clean",
-          icon = icon("broom"),
-          style = "color: #fff; 
-          background-color: #9ea8b0; 
-          border-color: #7c8287"
-        )
-      ),
-      conditionalPanel(
-        condition = "input.tabselected == 4",
-        uiOutput(
-          outputId = "r4_param"
-        ),
-        selectInput(
-          inputId = "r4_param_level",
-          label = "Choose a level",
-          choices = ""
-        ),
-        selectInput(
-          inputId = "r4_choice",
-          label = "Choose an option",
-          choices = c(
-            "map" = 2,
-            "table" = 1,
-            "request" = 3
-          ), 
-          selected = 2
-        ),
-        actionButton(
-          inputId = "r4_submit",
-          label = "Submit",
-          icon = icon("share-square"),
-          style = "color: #fff; 
-          background-color: #337ab7; 
-          border-color: #2e6da4"
-        ),
-        actionButton(
-          inputId = "r4_clean",
-          label = "Clean",
-          icon = icon("broom"),
-          style = "color: #fff; 
-          background-color: #9ea8b0; 
-          border-color: #7c8287"
+        mainPanel(
+          tabsetPanel(
+            tabPanel(
+              title = "map", 
+              value = "map1",
+              leafletOutput("r1_map", height = "500px")
+            ),
+            tabPanel(
+              title = "table",
+              value = "table1",
+              dataTableOutput("r1_table")
+            ),
+            tabPanel(
+              title = "request",
+              value = "request1",
+              verbatimTextOutput("r1_request")
+            ),
+            id = "req1"
+          )
         )
       )
     ),
-    mainPanel(
-      tabsetPanel(
-        tabPanel(
-          title = "req1", 
-          value = 1,
-          conditionalPanel(
-            condition = "input.r1_choice == 1",
-            tableOutput("r1_table")
+    tabPanel(
+      "req2",
+      value = "r2",
+      sidebarLayout(
+        sidebarPanel(
+          textInput(
+            inputId = "r2_lat",
+            label = "Latitude",
+            value = "40.7"
           ),
-          conditionalPanel(
-            condition = "input.r1_choice == 2",
-            leafletOutput("r1_map", height = "500px")
+          textInput(
+            inputId = "r2_lng",
+            label = "Longitude",
+            value = "-73.9"
           ),
-          conditionalPanel(
-            condition = "input.r1_choice == 3",
-            verbatimTextOutput("r1_request")
+          numericInput(
+            inputId = "r2_nn",
+            label = "k-nearest neighbors",
+            value = 10,
+            min = 1
+          ),
+          actionButton(
+            inputId = "r2_submit",
+            label = "Submit",
+            icon = icon("share-square"),
+            style = "color: #fff;
+            background-color: #337ab7;
+            border-color: #2e6da4"
+          ),
+          actionButton(
+            inputId = "r2_clean",
+            label = "Clean",
+            icon = icon("broom"),
+            style = "color: #fff;
+            background-color: #9ea8b0;
+            border-color: #7c8287"
           )
         ),
-        tabPanel(
-          title = "req2",
-          value = 2,
-          conditionalPanel(
-            condition = "input.r2_choice == 1",
-            tableOutput("r2_table")
-          ),
-          conditionalPanel(
-            condition = "input.r2_choice == 2",
-            leafletOutput("r2_map", height = "500px")
-          ),
-          conditionalPanel(
-            condition = "input.r2_choice == 3",
-            verbatimTextOutput("r2_request")
+        mainPanel(
+          tabsetPanel(
+            tabPanel(
+              title = "map",
+              value = "map2",
+              leafletOutput("r2_map", height = "500px")
+            ),
+            tabPanel(
+              title = "table",
+              value = "table2",
+              dataTableOutput("r2_table")
+            ),
+            tabPanel(
+              title = "request",
+              value = "request2",
+              verbatimTextOutput("r2_request")
+            ),
+            id = "req2"
           )
-        ),
-        tabPanel(
-          title = "req3",
-          value = 3,
-          conditionalPanel(
-            condition = "input.r3_choice == 2",
-            leafletOutput("r3_map", height = "500px")
-          ),
-          conditionalPanel(
-            condition = "input.r3_choice == 1",
-            tableOutput("r3_table")
-          ),
-          conditionalPanel(
-            condition = "input.r3_choice == 3",
-            verbatimTextOutput("r3_request")
-          )
-        ),
-        tabPanel(
-          title = "req4",
-          value = 4,
-          conditionalPanel(
-            condition = "input.r4_choice == 2",
-            leafletOutput("r4_map", height = "500px")
-          ),
-          conditionalPanel(
-            condition = "input.r4_choice == 1",
-            tableOutput("r4_table")
-          ),
-          conditionalPanel(
-            condition = "input.r4_choice == 3",
-            verbatimTextOutput("r4_request")
-          )
-        ),
-        id = "tabselected"
+        )
       )
-    )
+    ),
+    tabPanel(
+      "req3",
+      value = "r3",
+      sidebarLayout(
+        sidebarPanel(
+          checkboxInput(
+            inputId = "r3_check",
+            label = "Convex Hull", 
+            value = F
+          ),
+          actionButton(
+            inputId = "r3_submit",
+            label = "Submit",
+            icon = icon("share-square"),
+            style = "color: #fff; 
+            background-color: #337ab7; 
+            border-color: #2e6da4"
+          ),
+          actionButton(
+            inputId = "r3_clean",
+            label = "Clean",
+            icon = icon("broom"),
+            style = "color: #fff; 
+            background-color: #9ea8b0; 
+            border-color: #7c8287"
+          )
+        ),
+        mainPanel(
+          tabsetPanel(
+            tabPanel(
+              title = "map",
+              value = "map3",
+              leafletOutput("r3_map", height = "500px")
+            ),
+            tabPanel(
+              title = "table",
+              value = "table3",
+              dataTableOutput("r3_table")
+            ),
+            tabPanel(
+              title = "request",
+              value = "request3",
+              verbatimTextOutput("r3_request")
+            ),
+            id = "req3"
+          )
+        )
+      )
+    ),
+    tabPanel(
+      "req4",
+      value = "r4",
+      sidebarLayout(
+        sidebarPanel(
+          uiOutput(
+            outputId = "r4_param"
+          ),
+          selectInput(
+            inputId = "r4_param_level",
+            label = "Choose a level",
+            choices = ""
+          ),
+          actionButton(
+            inputId = "r4_submit",
+            label = "Submit",
+            icon = icon("share-square"),
+            style = "color: #fff; 
+            background-color: #337ab7; 
+            border-color: #2e6da4"
+          ),
+          actionButton(
+            inputId = "r4_clean",
+            label = "Clean",
+            icon = icon("broom"),
+            style = "color: #fff; 
+            background-color: #9ea8b0; 
+            border-color: #7c8287"
+          )
+        ),
+        mainPanel(
+          tabsetPanel(
+            tabPanel(
+              title = "map",
+              value = "map4",
+              leafletOutput("r4_map", height = "500px")
+            ),
+            tabPanel(
+              title = "table",
+              value = "table4",
+              dataTableOutput("r4_table")
+            ),
+            tabPanel(
+              title = "request",
+              value = "request4",
+              verbatimTextOutput("r4_request")
+            ),
+            id = "req4"
+          )
+        )
+      )
+    ),
+    id = "reqselected"
   )
 )
