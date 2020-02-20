@@ -81,6 +81,7 @@ where
     data_type = 'character varying'"
 
 request_4_2 <- c("
+
 select distinct
   tab.","_______"," as levels
 from (select * from ny_crimes c
@@ -88,6 +89,7 @@ from (select * from ny_crimes c
   on st_intersects(c.geom, p.geom)) tab")
 
 request_4_3 <- c("
+
 select 
   c.id_crime as id
   , c.age_group as age
@@ -104,6 +106,7 @@ from
 where ","_____"," like '","_____","%' ")
 
 request_5 <- c("
+
 select
   c.id_crime as id
   , c.age_group as age

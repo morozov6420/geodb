@@ -48,16 +48,16 @@ shinyServer(
             grepl("drop", tolower(input$r1_req)) |
               grepl("alter table", tolower(input$r1_req)),
             dat <- data.frame(message = "Don't do it"),
-            ifelse(
-              grepl("insert", tolower(input$r1_req)),
-              {
-                con <- do.call(DBI::dbConnect, args)
-                on.exit(dbDisconnect(con))
-                dbExecute(con, input$r1_req)
-                dat <- data.frame(message = "well done")
-              },
-              dat <- data.frame(message = "Use SELECT or INSERT")
-            )
+            # TODO ifelse(
+            #   grepl("insert", tolower(input$r1_req)),
+            #   {
+            #     con <- do.call(DBI::dbConnect, args)
+            #     on.exit(dbDisconnect(con))
+            #     dbExecute(con, input$r1_req)
+            #     dat <- data.frame(message = "well done")
+            #   },
+            dat <- data.frame(message = "Use SELECT or INSERT")
+            # )
           )
         )
         dat
@@ -95,10 +95,10 @@ shinyServer(
               opacity = 1,
               radius = 100,
               popup = ~ paste(
-                "Age: ", age, "<br>",
-                "Type: ", type, "<br>",
-                "Date: ", date, "<br>",
-                "Time :", time, "<br>",
+                # "Age: ", age, "<br>",
+                # "Type: ", type, "<br>",
+                # "Date: ", date, "<br>",
+                # "Time :", time, "<br>",
                 "lng: ", round(lng, 4), "<br>",
                 "lat: ", round(lat, 4)
               )

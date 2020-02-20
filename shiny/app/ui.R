@@ -10,9 +10,9 @@ library(shinyTime)
 
 shinyUI(
   navbarPage(
-    title = "Layout v2",
+    title = "GeoDB",
     tabPanel(
-      "req1",
+      "Text query",
       value = "r1",
       sidebarLayout(#position = "right",
         sidebarPanel(#width = 5,
@@ -66,20 +66,18 @@ shinyUI(
       )
     ),
     tabPanel(
-      "req2",
+      "k-NN",
       value = "r2",
       sidebarLayout(
         sidebarPanel(
           textInput(
             inputId = "r2_lat",
             label = "Latitude",
-            # width = "49%",
             value = "40.7",
           ),
           textInput(
             inputId = "r2_lng",
             label = "Longitude",
-            # width = "49%",
             value = "-73.9"
           ),
           numericInput(
@@ -130,7 +128,7 @@ shinyUI(
       )
     ),
     tabPanel(
-      "req3",
+      "Search in the polygon",
       value = "r3",
       sidebarLayout(
         sidebarPanel(
@@ -181,7 +179,7 @@ shinyUI(
       )
     ),
     tabPanel(
-      "req4",
+      "Categorical features",
       value = "r4",
       sidebarLayout(
         sidebarPanel(
@@ -236,7 +234,7 @@ shinyUI(
       )
     ),
     tabPanel(
-      "req5",
+      "Search in the vicinity",
       value = "r5",
       sidebarLayout(
         sidebarPanel(
@@ -300,9 +298,9 @@ shinyUI(
       )
     ),
     navbarMenu(
-      "req6",
+      "Insert",
       tabPanel(
-        "req6_1",
+        "Ponit",
         value = "r6_1",
         sidebarLayout(
           sidebarPanel(
@@ -388,14 +386,15 @@ shinyUI(
         )
       ),
       tabPanel(
-        "req6_2",
+        "Polygon",
         value = "r6_2",
         sidebarLayout(
           sidebarPanel(
             textInput(
               inputId = "r6_2_region",
               label = "region",
-              value = "MMM"
+              # value = "MMM", 
+              placeholder = "new value"
             ),
             checkboxInput(
               inputId = "r6_2_check",
