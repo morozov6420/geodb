@@ -3,9 +3,10 @@ library(leaflet)
 library(DBI)
 library(RPostgreSQL)
 library(dplyr)
-library(leafem)
+# library(leafem)
 library(stringr)
 library(DT)
+library(shinyTime)
 
 shinyUI(
   navbarPage(
@@ -13,8 +14,8 @@ shinyUI(
     tabPanel(
       "req1",
       value = "r1",
-      sidebarLayout(
-        sidebarPanel(
+      sidebarLayout(#position = "right",
+        sidebarPanel(#width = 5,
           textAreaInput(
             inputId = "r1_req",
             label = "Request",
@@ -26,7 +27,8 @@ shinyUI(
           actionButton(
             inputId = "r1_submit",
             label = "Submit",
-            icon = icon("share-square"),
+            icon = icon("share-square"), 
+            width = "49%",
             style = "color: #fff;
           background-color: #337ab7;
           border-color: #2e6da4"
@@ -35,12 +37,13 @@ shinyUI(
             inputId = "r1_clean",
             label = "Clean",
             icon = icon("broom"),
+            width = "49%",
             style = "color: #fff;
-          background-color: #9ea8b0;
-          border-color: #7c8287"
+            background-color: #9ea8b0;
+            border-color: #7c8287"
           )
         ),
-        mainPanel(
+        mainPanel(#width = 7,
           tabsetPanel(
             tabPanel(
               title = "map", 
@@ -70,11 +73,13 @@ shinyUI(
           textInput(
             inputId = "r2_lat",
             label = "Latitude",
-            value = "40.7"
+            # width = "49%",
+            value = "40.7",
           ),
           textInput(
             inputId = "r2_lng",
             label = "Longitude",
+            # width = "49%",
             value = "-73.9"
           ),
           numericInput(
@@ -87,6 +92,7 @@ shinyUI(
             inputId = "r2_submit",
             label = "Submit",
             icon = icon("share-square"),
+            width = "49%",
             style = "color: #fff;
             background-color: #337ab7;
             border-color: #2e6da4"
@@ -95,6 +101,7 @@ shinyUI(
             inputId = "r2_clean",
             label = "Clean",
             icon = icon("broom"),
+            width = "49%",
             style = "color: #fff;
             background-color: #9ea8b0;
             border-color: #7c8287"
@@ -136,6 +143,7 @@ shinyUI(
             inputId = "r3_submit",
             label = "Submit",
             icon = icon("share-square"),
+            width = "49%",
             style = "color: #fff; 
             background-color: #337ab7; 
             border-color: #2e6da4"
@@ -144,6 +152,7 @@ shinyUI(
             inputId = "r3_clean",
             label = "Clean",
             icon = icon("broom"),
+            width = "49%",
             style = "color: #fff; 
             background-color: #9ea8b0; 
             border-color: #7c8287"
@@ -182,12 +191,14 @@ shinyUI(
           selectInput(
             inputId = "r4_param_level",
             label = "Choose a level",
+            # width = "49%",
             choices = ""
           ),
           actionButton(
             inputId = "r4_submit",
             label = "Submit",
             icon = icon("share-square"),
+            width = "49%",
             style = "color: #fff; 
             background-color: #337ab7; 
             border-color: #2e6da4"
@@ -196,6 +207,7 @@ shinyUI(
             inputId = "r4_clean",
             label = "Clean",
             icon = icon("broom"),
+            width = "49%",
             style = "color: #fff; 
             background-color: #9ea8b0; 
             border-color: #7c8287"
@@ -219,6 +231,215 @@ shinyUI(
               verbatimTextOutput("r4_request")
             ),
             id = "req4"
+          )
+        )
+      )
+    ),
+    tabPanel(
+      "req5",
+      value = "r5",
+      sidebarLayout(
+        sidebarPanel(
+          textInput(
+            inputId = "r5_lat",
+            label = "Latitude",
+            # width = "49%",
+            value = "40.7",
+          ),
+          textInput(
+            inputId = "r5_lng",
+            label = "Longitude",
+            # width = "49%",
+            value = "-73.9"
+          ),
+          numericInput(
+            inputId = "r5_dist",
+            label = "Distance, m",
+            value = 5000,
+            min = 1
+          ),
+          actionButton(
+            inputId = "r5_submit",
+            label = "Submit",
+            icon = icon("share-square"),
+            width = "49%",
+            style = "color: #fff;
+            background-color: #337ab7;
+            border-color: #2e6da4"
+          ),
+          actionButton(
+            inputId = "r5_clean",
+            label = "Clean",
+            icon = icon("broom"),
+            width = "49%",
+            style = "color: #fff;
+            background-color: #9ea8b0;
+            border-color: #7c8287"
+          )
+        ),
+        mainPanel(
+          tabsetPanel(
+            tabPanel(
+              title = "map",
+              value = "map5",
+              leafletOutput("r5_map", height = "500px")
+            ),
+            tabPanel(
+              title = "table",
+              value = "table5",
+              dataTableOutput("r5_table")
+            ),
+            tabPanel(
+              title = "request",
+              value = "request5",
+              verbatimTextOutput("r5_request")
+            ),
+            id = "req5"
+          )
+        )
+      )
+    ),
+    navbarMenu(
+      "req6",
+      tabPanel(
+        "req6_1",
+        value = "r6_1",
+        sidebarLayout(
+          sidebarPanel(
+            textInput(
+              inputId = "r6_1_age",
+              label = "age_group",
+              # value = ""
+              value = "MMM"
+            ),
+            textInput(
+              inputId = "r6_1_sex",
+              label = "vic_sex",
+              # value = ""
+              value = "MMM"
+            ),
+            textInput(
+              inputId = "r6_1_type",
+              label = "cr_type",
+              # value = ""
+              value = "MMM"
+            ),
+            textInput(
+              inputId = "r6_1_lat",
+              label = "Latitude",
+              value = "40.7"
+            ),
+            textInput(
+              inputId = "r6_1_lng",
+              label = "Longitude",
+              value = "-73.9"
+            ),
+            dateInput(
+              inputId = "r6_1_date",
+              label = "date",
+              value = "2020-02-18", 
+              width = "49%",
+              autoclose = TRUE
+            ),
+            timeInput(
+              inputId = "r6_1_time",
+              label = "time",
+              value = strptime("12:34:56", "%T")
+            ),
+            actionButton(
+              inputId = "r6_1_submit",
+              label = "Submit",
+              icon = icon("share-square"),
+              width = "49%",
+              style = "color: #fff;
+              background-color: #337ab7;
+              border-color: #2e6da4"
+            ),
+            actionButton(
+              inputId = "r6_1_clean",
+              label = "Clean",
+              icon = icon("broom"),
+              width = "49%",
+              style = "color: #fff;
+              background-color: #9ea8b0;
+              border-color: #7c8287"
+            )
+          ),
+          mainPanel(
+            tabsetPanel(
+              tabPanel(
+                title = "map",
+                value = "map6_1",
+                leafletOutput("r6_1_map", height = "500px")
+              ),
+              tabPanel(
+                title = "table",
+                value = "table6_1",
+                dataTableOutput("r6_1_table")
+              ),
+              tabPanel(
+                title = "request",
+                value = "request6_1",
+                verbatimTextOutput("r6_1_request")
+              ),
+              id = "req6_1"
+            )
+          )
+        )
+      ),
+      tabPanel(
+        "req6_2",
+        value = "r6_2",
+        sidebarLayout(
+          sidebarPanel(
+            textInput(
+              inputId = "r6_2_region",
+              label = "region",
+              value = "MMM"
+            ),
+            checkboxInput(
+              inputId = "r6_2_check",
+              label = "Convex Hull", 
+              value = F
+            ),
+            actionButton(
+              inputId = "r6_2_submit",
+              label = "Submit",
+              icon = icon("share-square"),
+              width = "49%",
+              style = "color: #fff;
+              background-color: #337ab7;
+              border-color: #2e6da4"
+            ),
+            actionButton(
+              inputId = "r6_2_clean",
+              label = "Clean",
+              icon = icon("broom"),
+              width = "49%",
+              style = "color: #fff;
+              background-color: #9ea8b0;
+              border-color: #7c8287"
+            )
+          ),
+          mainPanel(
+            tabsetPanel(
+              tabPanel(
+                title = "map",
+                value = "map6_2",
+                leafletOutput("r6_2_map", height = "500px")
+              ),
+              tabPanel(
+                title = "table",
+                value = "table6_2",
+                dataTableOutput("r6_2_table")
+              ),
+              tabPanel(
+                title = "request",
+                value = "request6_2",
+                verbatimTextOutput("r6_2_request")
+              ),
+              id = "req6_2"
+            )
           )
         )
       )
