@@ -471,6 +471,7 @@ shinyServer(
         return()
       isolate({
         request_4_2[2] <- input$r4_par
+        request_4_3[2] <- input$r4_par
         if(input$r4_par == 'region' & input$r4_param_level == "NA"){
           request_4_3[3] <- " is "
           request_4_3[4] <- "NULL"
@@ -883,10 +884,7 @@ shinyServer(
       if (input$r6_2_submit == 0)
         return()
       isolate({
-        request_6_2_2 <- paste0(request_6_2_2, collapse = "")
-        con <- do.call(DBI::dbConnect, args)
-        on.exit(dbDisconnect(con))
-        dbGetQuery(con, request_6_2_2)
+        insert_poly
       })
     }, 
     options = list(searching = FALSE))
@@ -988,6 +986,10 @@ shinyServer(
           sep = " ",
           collapse = ", "
         )
+        request_6_2_2 <- paste0(request_6_2_2, collapse = "")
+        con <- do.call(DBI::dbConnect, args)
+        on.exit(dbDisconnect(con))
+        insert_poly <<- dbGetQuery(con, request_6_2_2)
         request_6_2_1 <- paste0(request_6_2_1, collapse = "")
         con <- do.call(DBI::dbConnect, args)
         on.exit(dbDisconnect(con))
