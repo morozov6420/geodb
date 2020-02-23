@@ -19,9 +19,9 @@ from (select * from ny_crimes
 select 
 	st_x(ny_crimes.geom) as lng, 
 	st_y(ny_crimes.geom) as lat,
-	ny_parts.boroname as region
+	ny_parts.region as region
 from 
 	ny_crimes 
 join ny_parts on st_intersects(ny_crimes.geom, ny_parts.geom) 
-where ny_parts.boroname like'Staten%' 
+where ny_parts.region like'Staten%' 
 --limit 5
