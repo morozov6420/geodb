@@ -292,7 +292,7 @@ shinyUI(
           ),
           numericInput(
             inputId = "r5_dist",
-            label = "Distance, m",
+            label = "Radius, m",
             value = 5000,
             min = 1
           ),
@@ -398,7 +398,7 @@ shinyUI(
           ),
           selectInput(
             inputId = "r4_param_level",
-            label = "Choose a level",
+            label = "Choose a value",
             # width = "49%",
             choices = ""
           ),
@@ -453,13 +453,13 @@ shinyUI(
           ),
           selectInput(
             inputId = "r7_param_level_1",
-            label = "Choose a level 1",
+            label = "Choose a value",
             # width = "49%",
             choices = ""
           ),
           selectInput(
             inputId = "r7_param_level_2",
-            label = "Choose a level 2",
+            label = "Choose a value",
             # width = "49%",
             choices = ""
           ),

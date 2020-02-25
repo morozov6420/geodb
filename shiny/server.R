@@ -487,7 +487,7 @@ shinyServer(
     output$r4_param <- renderUI({
       selectInput(
         inputId = "r4_par",
-        label = "Choose a param",
+        label = "Choose a parameter",
         choices = params_4()$params
       )
     })
@@ -500,7 +500,7 @@ shinyServer(
       updateSelectInput(
         session = session,
         inputId = "r4_param_level",
-        label = "Choose a level",
+        label = "Choose a value",
         choices = dat$levels
       )
     })
@@ -1123,7 +1123,7 @@ shinyServer(
     output$r7_param <- renderUI({
       selectInput(
         inputId = "r7_par",
-        label = "Choose a param",
+        label = "Choose a parameter",
         choices = params_7()$params
       )
     })
@@ -1136,13 +1136,13 @@ shinyServer(
       updateSelectInput(
         session = session,
         inputId = "r7_param_level_1",
-        label = "Choose a level 1",
+        label = "Choose a value",
         choices = dat$levels
       )
       updateSelectInput(
         session = session,
         inputId = "r7_param_level_2",
-        label = "Choose a level 2",
+        label = "Choose a value",
         choices = dat$levels
       )
     })
