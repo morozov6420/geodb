@@ -8,7 +8,7 @@ library(stringr)
 library(DT)
 library(shinyTime)
 
-
+# Create a database connection parameters
 args <- list(
   drv = dbDriver("PostgreSQL"),
   dbname = "geo",
@@ -24,19 +24,25 @@ args <- list(
 
 shinyServer(
   function(input, output, session) {
-    # select ---- 
+    # select query ---- 
+    # create a map
     output$r1_map <- renderLeaflet({
       leaflet() %>%
         addTiles() %>%
         setView(lat = 40.7, lng = -73.9, zoom = 10) %>% 
         clearShapes()
     })
+    
+    # create a table
+    # observe clicking event
+    # After clicking on the button submit, 
+    # the query will be executed
     output$r1_table <- renderDataTable({
       if (input$r1_submit == 0)
         return()
       isolate({
         ifelse(
-          grepl("^select", tolower(input$r1_req)),
+          grepl("^select", tolower(input$r1_req)), # if query starts with select
           {
             con <- do.call(DBI::dbConnect, args)
             on.exit(dbDisconnect(con))
@@ -48,6 +54,8 @@ shinyServer(
       })
     }, 
     options = list(searching = FALSE))
+    
+    # create query-viewing field
     output$r1_request <- renderPrint({ 
       if (input$r1_submit == 0)
         return()
@@ -55,6 +63,9 @@ shinyServer(
         cat(input$r1_req, sep = "")
       })
     })
+    
+    # After clicking on the button submit, 
+    # the map will be updated
     observeEvent(input$r1_submit, {
       ifelse(
         grepl("^select", tolower(input$r1_req)) &&
@@ -85,6 +96,8 @@ shinyServer(
         return()
       )
     })
+    # After clicking on the button clean, 
+    # the map will be cleaned off
     observeEvent(input$r1_clean, {
       leafletProxy('r1_map') %>%
         clearGroup(
@@ -93,6 +106,7 @@ shinyServer(
     })
     
     # k-NN ----
+    # create a map
     output$r2_map <- renderLeaflet({
       leaflet() %>%
         addTiles() %>%
@@ -109,6 +123,10 @@ shinyServer(
           )
         )
     })
+    
+    # create a table
+    # After clicking on the button submit, 
+    # the query will be executed
     output$r2_table <- renderDataTable({
       if (input$r2_submit == 0 ||
           (suppressWarnings(
@@ -138,6 +156,8 @@ shinyServer(
       })
     }, 
     options = list(searching = FALSE))
+    
+    # create query-viewing field
     output$r2_request <- renderPrint({
       if (input$r2_submit == 0 ||
           (suppressWarnings(
@@ -164,6 +184,9 @@ shinyServer(
         cat(request__2, sep = "")
       })
     })
+    
+    # After clicking on the map, 
+    # lat and lng will be updated
     observeEvent(input$r2_map_click, {
       click <- input$r2_map_click
       clat <- click$lat
@@ -191,6 +214,9 @@ shinyServer(
         value = clng
       )
     })
+    
+    # After clicking on the button submit, 
+    # the map will be updated
     observeEvent(input$r2_submit, {
       if (suppressWarnings(
         is.na(
@@ -256,12 +282,18 @@ shinyServer(
     })
     
     # Search in the polygon ----
+    # create a map
     output$r3_map <- renderLeaflet({
       leaflet() %>% 
         addTiles() %>% 
         setView(lat = 40.7, lng = -73.9, zoom = 10) %>% 
         clearShapes()
     })
+    
+    # create a table
+    # observe clicking event
+    # After clicking on the button submit, 
+    # the query will be executed
     output$r3_table <- renderDataTable({
       if (input$r3_submit == 0)
         return()
@@ -273,6 +305,8 @@ shinyServer(
       })
     }, 
     options = list(searching = FALSE))
+    
+    # create query-viewing field
     output$r3_request <- renderPrint({
       if (input$r3_submit == 0)
         return()
@@ -447,12 +481,17 @@ shinyServer(
       on.exit(dbDisconnect(con))
       dbGetQuery(con, request_4_1)
     })
+    # create a map
     output$r4_map <- renderLeaflet({
       leaflet() %>% 
         addTiles() %>% 
         setView(lat = 40.7, lng = -73.9, zoom = 10) %>% 
         clearShapes()
     })
+    
+    # create a table
+    # After clicking on the button submit, 
+    # the query will be executed
     output$r4_table <- renderDataTable({
       if (input$r4_submit == 0)
         return()
@@ -466,6 +505,8 @@ shinyServer(
       })
     }, 
     options = list(searching = FALSE))
+    
+    # create query-viewing field
     output$r4_request <- renderPrint({
       if (input$r4_submit == 0)
         return()
@@ -504,6 +545,9 @@ shinyServer(
         choices = dat$levels
       )
     })
+    
+    # After clicking on the button submit, 
+    # the map will be updated
     observeEvent(input$r4_submit, {
       if(input$r4_par == 'region' & input$r4_param_level == "NA"){
         request_4_3[3] <- " is "
@@ -541,6 +585,9 @@ shinyServer(
           )
         )
     })
+    
+    # After clicking on the button clean, 
+    # the map will be cleaned off
     observeEvent(input$r4_clean, {
       leafletProxy('r4_map') %>% 
         clearGroup(
@@ -549,6 +596,7 @@ shinyServer(
     })
     
     # Search in the vicinity ----
+    # create a map
     output$r5_map <- renderLeaflet({
       leaflet() %>%
         addTiles() %>%
@@ -565,6 +613,10 @@ shinyServer(
           )
         )
     })
+    
+    # create a table
+    # After clicking on the button submit and check input format, 
+    # the query will be executed
     output$r5_table <- renderDataTable({
       if (input$r5_submit == 0 ||
           (suppressWarnings(
@@ -594,6 +646,8 @@ shinyServer(
       })
     }, 
     options = list(searching = FALSE))
+    
+    # create query-viewing field
     output$r5_request <- renderPrint({
       if (input$r5_submit == 0 ||
           (suppressWarnings(
@@ -646,6 +700,9 @@ shinyServer(
         value = clng
       )
     })
+    
+    # After clicking on the button submit, 
+    # the map will be updated
     observeEvent(input$r5_submit, {
       if (suppressWarnings(
         is.na(
@@ -713,6 +770,9 @@ shinyServer(
         }
       }
     })
+    
+    # After clicking on the button clean, 
+    # the map will be cleaned off
     observeEvent(input$r5_clean, {
       leafletProxy('r5_map') %>%
         clearGroup(
@@ -721,6 +781,7 @@ shinyServer(
     })
     
     # input point ----
+    # create a map
     output$r6_1_map <- renderLeaflet({
       leaflet() %>%
         addTiles() %>%
@@ -737,6 +798,10 @@ shinyServer(
           )
         )
     })
+    
+    # create a table
+    # After clicking on the button submit and check input format, 
+    # the query will be executed
     output$r6_1_table <- renderDataTable({
       if (input$r6_1_submit == 0 ||
           (suppressWarnings(
@@ -760,6 +825,8 @@ shinyServer(
       })
     }, 
     options = list(searching = FALSE))
+    
+    # create query-viewing field
     output$r6_1_request <- renderPrint({
       if (input$r6_1_submit == 0 ||
           (suppressWarnings(
@@ -810,6 +877,9 @@ shinyServer(
         value = clng
       )
     })
+    
+    # After clicking on the button submit, 
+    # the map will be updated
     observeEvent(input$r6_1_submit, {
       if (suppressWarnings(
         is.na(
@@ -857,6 +927,9 @@ shinyServer(
           )
       }
     })
+    
+    # After clicking on the button clean, 
+    # the map will be cleaned off
     observeEvent(input$r6_1_clean, {
       leafletProxy('r6_1_map') %>%
         clearGroup(group = "crimes") %>%
@@ -864,6 +937,7 @@ shinyServer(
     })
     
     # input polygon ----
+    # create a map
     output$r6_2_map <- renderLeaflet({
       leaflet() %>%
         addTiles() %>%
@@ -880,6 +954,10 @@ shinyServer(
           )
         )
     })
+    
+    # create a table
+    # After clicking on the button submit, 
+    # the query will be executed
     output$r6_2_table <- renderDataTable({
       if (input$r6_2_submit == 0)
         return()
@@ -888,6 +966,8 @@ shinyServer(
       })
     }, 
     options = list(searching = FALSE))
+    
+    # create query-viewing field
     output$r6_2_request <- renderPrint({
       if (input$r6_2_submit == 0)
         return()
@@ -962,6 +1042,9 @@ shinyServer(
           color = "red"
         )
     })
+    
+    # After clicking on the button submit, 
+    # the map will be updated
     observeEvent(input$r6_2_submit, {
       if (nrow(r6_2_coord) > 0){
         request_6_2_2[2] <<- input$r6_2_region
@@ -1022,6 +1105,9 @@ shinyServer(
         r6_2_cooord <<- data.frame(numeric(), numeric())  
       }
     })
+    
+    # After clicking on the button clean, 
+    # the map will be cleaned off
     observeEvent(input$r6_2_clean, {
       r6_2_coord <<- data.frame(numeric(), numeric())
       r6_2_cooord <<- data.frame(numeric(), numeric())
@@ -1041,17 +1127,23 @@ shinyServer(
     })
     
     # linkages ----
+    
     params_7 <- reactive({
       con <- do.call(DBI::dbConnect, args)
       on.exit(dbDisconnect(con))
       dbGetQuery(con, request_4_1)
     })
+    # create a map
     output$r7_map <- renderLeaflet({
       leaflet() %>%
         addTiles() %>%
         setView(lat = 40.7, lng = -73.9, zoom = 10) %>%
         clearShapes()
     })
+    
+    # create a table
+    # After clicking on the button submit, 
+    # the query will be executed
     output$r7_table <- renderDataTable({
       if (input$r7_submit == 0)
         return()
@@ -1077,6 +1169,8 @@ shinyServer(
       dat <- dbGetQuery(con, request_7__4)
     },
     options = list(searching = FALSE))
+    
+    # create query-viewing field
     output$r7_request <- renderPrint({
       if (input$r7_submit == 0)
         return()
@@ -1146,6 +1240,9 @@ shinyServer(
         choices = dat$levels
       )
     })
+
+    # After clicking on the button submit, 
+    # the map will be updated
     observeEvent(input$r7_submit, {
       request_7_3[2] <- input$r7_par
       if(input$r7_par == "region" & input$r7_param_level_1 == "NA"){
@@ -1275,6 +1372,9 @@ shinyServer(
         )
       )
     })
+    
+    # After clicking on the button clean, 
+    # the map will be cleaned off
     observeEvent(input$r7_clean, {
       leafletProxy('r7_map') %>%
         clearGroup(

@@ -9,13 +9,18 @@ library(DT)
 library(shinyTime)
 
 shinyUI(
+  # create main navigation panel
   navbarPage(
     title = "GeoDB",
+    
+    # the first feature - text query
     tabPanel(
       "Select",
       value = "r1",
-      sidebarLayout(#position = "right",
-        sidebarPanel(#width = 5,
+      sidebarLayout(
+        
+        # user unput
+        sidebarPanel(
           textAreaInput(
             inputId = "r1_req",
             label = "Request",
@@ -43,7 +48,9 @@ shinyUI(
             border-color: #7c8287"
           )
         ),
-        mainPanel(#width = 7,
+        
+        # app output
+        mainPanel(
           tabsetPanel(
             tabPanel(
               title = "map", 
@@ -67,10 +74,14 @@ shinyUI(
     ),
     navbarMenu(
       "Insert",
+      
+      # the second feature - insert point
       tabPanel(
         "Ponit",
         value = "r6_1",
         sidebarLayout(
+          
+          # user unput
           sidebarPanel(
             textInput(
               inputId = "r6_1_age",
@@ -131,6 +142,8 @@ shinyUI(
               border-color: #7c8287"
             )
           ),
+          
+          # app output
           mainPanel(
             tabsetPanel(
               tabPanel(
@@ -153,10 +166,14 @@ shinyUI(
           )
         )
       ),
+      
+      # the third feature - insert polygon
       tabPanel(
         "Polygon",
         value = "r6_2",
         sidebarLayout(
+          
+          # user unput
           sidebarPanel(
             textInput(
               inputId = "r6_2_region",
@@ -188,6 +205,8 @@ shinyUI(
               border-color: #7c8287"
             )
           ),
+          
+          # app output
           mainPanel(
             tabsetPanel(
               tabPanel(
@@ -211,10 +230,14 @@ shinyUI(
         )
       )
     ),
+    
+    # the fourth feature - k-NN
     tabPanel(
       "k-NN",
       value = "r2",
       sidebarLayout(
+        
+        # user unput
         sidebarPanel(
           textInput(
             inputId = "r2_lat",
@@ -251,6 +274,8 @@ shinyUI(
             border-color: #7c8287"
           )
         ),
+        
+        # app output
         mainPanel(
           tabsetPanel(
             tabPanel(
@@ -273,21 +298,23 @@ shinyUI(
         )
       )
     ),
+    
+    # the fifth feature - searching within the radius
     tabPanel(
       "Search in the vicinity",
       value = "r5",
       sidebarLayout(
+        
+        # user unput
         sidebarPanel(
           textInput(
             inputId = "r5_lat",
             label = "Latitude",
-            # width = "49%",
             value = "40.7",
           ),
           textInput(
             inputId = "r5_lng",
             label = "Longitude",
-            # width = "49%",
             value = "-73.9"
           ),
           numericInput(
@@ -315,6 +342,8 @@ shinyUI(
             border-color: #7c8287"
           )
         ),
+        
+        # app output
         mainPanel(
           tabsetPanel(
             tabPanel(
@@ -337,10 +366,14 @@ shinyUI(
         )
       )
     ),
+    
+    # the sixth feature - searching within the polygon
     tabPanel(
       "Search in the polygon",
       value = "r3",
       sidebarLayout(
+        
+        # user unput
         sidebarPanel(
           checkboxInput(
             inputId = "r3_check",
@@ -366,6 +399,8 @@ shinyUI(
             border-color: #7c8287"
           )
         ),
+        
+        # app output
         mainPanel(
           tabsetPanel(
             tabPanel(
@@ -388,10 +423,13 @@ shinyUI(
         )
       )
     ),
+    # the seventh feature - searching groups
     tabPanel(
       "Categorical features",
       value = "r4",
       sidebarLayout(
+        
+        # user unput
         sidebarPanel(
           uiOutput(
             outputId = "r4_param"
@@ -421,6 +459,8 @@ shinyUI(
             border-color: #7c8287"
           )
         ),
+        
+        # app output
         mainPanel(
           tabsetPanel(
             tabPanel(
@@ -443,10 +483,13 @@ shinyUI(
         )
       )
     ),
+    # the eighth feature - calculation of linkages between the two groups
     tabPanel(
       "Linkages",
       value = "r7",
       sidebarLayout(
+        
+        # user unput
         sidebarPanel(
           uiOutput(
             outputId = "r7_param"
@@ -492,6 +535,8 @@ shinyUI(
             border-color: #7c8287"
           )
         ),
+        
+        # app output
         mainPanel(
           tabsetPanel(
             tabPanel(
